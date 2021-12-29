@@ -1,7 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  debugPrint('using firestore emulator...');
+  // // set settings manually
+  // FirebaseFirestore.instance.settings = const Settings(
+  //   host: 'localhost:8080',
+  //   sslEnabled: false,
+  //   persistenceEnabled: false,
+  // );
+
+  FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
+
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -69,6 +87,31 @@ class _MyHomePageState extends State<MyHomePage> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
+
+    CollectionReference users = FirebaseFirestore.instance.collection('test');
+
+    final firestoreWidget = FutureBuilder<DocumentSnapshot>(
+      future: users.doc('testId').get(),
+      builder:
+          (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+        if (snapshot.hasError) {
+          return Text("Something went wrong");
+        }
+
+        if (snapshot.hasData && !snapshot.data!.exists) {
+          return Text("Document does not exist");
+        }
+
+        if (snapshot.connectionState == ConnectionState.done) {
+          Map<String, dynamic> data =
+              snapshot.data!.data() as Map<String, dynamic>;
+          return Text("$data");
+        }
+
+        return Text("loading");
+      },
+    );
+
     return Scaffold(
       appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
@@ -95,6 +138,7 @@ class _MyHomePageState extends State<MyHomePage> {
           // horizontal).
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            firestoreWidget,
             const Text(
               'You have pushed the button this many times:',
             ),
