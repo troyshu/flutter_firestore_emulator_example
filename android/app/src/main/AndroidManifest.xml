@@ -2,6 +2,7 @@
     package="com.example.flutter_firestore_example">
    <application
         android:label="flutter_firestore_example"
+        android:usesCleartextTraffic="true"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

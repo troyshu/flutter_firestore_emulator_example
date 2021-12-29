@@ -79,6 +79,15 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  Future<void> writeFirestore() {
+    // test write
+    final testWritesRef = FirebaseFirestore.instance.collection('writes');
+    return testWritesRef
+        .add({'field': 'value'})
+        .then((value) => debugPrint("Data written"))
+        .catchError((error) => debugPrint("Failed to write: $error"));
+  }
+
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -139,6 +148,12 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             firestoreWidget,
+            TextButton(
+              onPressed: writeFirestore,
+              child: Text(
+                "Write",
+              ),
+            ),
             const Text(
               'You have pushed the button this many times:',
             ),
